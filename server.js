@@ -5,15 +5,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const HF_TOKEN = process.env.HF_TOKEN;
+
 app.post("/ask", async (req, res) => {
     const { question } = req.body;
 
     try {
         const response = await fetch(
-            "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium",
+            "https://api-inference.huggingface.co/models/google/flan-t5-small",
             {
                 method: "POST",
                 headers: {
+                    "Authorization": "Bearer " + HF_TOKEN,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
@@ -25,7 +28,10 @@ app.post("/ask", async (req, res) => {
         const data = await response.json();
 
         res.json({
-            answer: data?.generated_text || "Nėra atsakymo"
+            answer:
+                data?.[0]?.generated_text ||
+                data?.generated_text ||
+                JSON.stringify(data)
         });
 
     } catch (err) {
