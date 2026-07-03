@@ -38,4 +38,4 @@ app.post("/ask", async (req, res) => {
 
 app.listen(10000, () => {
     console.log("Bičiulis (free) veikia");
-});
+}); 
