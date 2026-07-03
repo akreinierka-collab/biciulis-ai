@@ -1,57 +1,35 @@
-import express from "express";
-import cors from "cors";
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = process.env.OPENAI_API_KEY;
-
 app.post("/ask", async (req, res) => {
-    const { question, name } = req.body;
+    const { question } = req.body;
 
     try {
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + API_KEY
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [
-                    {
-                        role: "system",
-                        content: `
-Tu esi Bičiulis – ramus, draugiškas, realistiškas pokalbio partneris.
-Kalbi paprastai, be filosofijos.
-Trumpi atsakymai.
-Jei nežinai – pasakai.
-Kartais užduodi klausimą atgal.
-Vartotojo vardas: ${name || "drauge"}
-                        `
-                    },
-                    {
-                        role: "user",
-                        content: question
-                    }
-                ]
-            })
-        });
+        const response = await fetch(
+            "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    inputs: question
+                })
+            }
+        );
 
         const data = await response.json();
 
-console.log("OPENAI RESPONSE:", data);
+        let answer =
+            data?.generated_text ||
+            data?.[0]?.generated_text ||
+            "Atsiprašau, negavau atsakymo.";
 
-if (!data.choices || !data.choices[0]) {
-    return res.json({
-        answer: "API klaida: " + JSON.stringify(data)
-    });
-}
-
-res.json({
-    answer: data.choices[0].message.content
-});
+        res.json({ answer });
 
     } catch (err) {
         res.json({ answer: "Klaida: " + err.message });
@@ -59,5 +37,5 @@ res.json({
 });
 
 app.listen(10000, () => {
-    console.log("Bičiulis veikia");
+    console.log("Bičiulis (free) veikia");
 });
