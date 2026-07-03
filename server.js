@@ -41,9 +41,17 @@ Vartotojo vardas: ${name || "drauge"}
 
         const data = await response.json();
 
-        res.json({
-            answer: data.choices[0].message.content
-        });
+console.log("OPENAI RESPONSE:", data);
+
+if (!data.choices || !data.choices[0]) {
+    return res.json({
+        answer: "API klaida: " + JSON.stringify(data)
+    });
+}
+
+res.json({
+    answer: data.choices[0].message.content
+});
 
     } catch (err) {
         res.json({ answer: "Klaida: " + err.message });
