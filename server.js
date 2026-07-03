@@ -1,5 +1,5 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 
 const app = express();
 app.use(cors());
@@ -24,18 +24,13 @@ app.post("/ask", async (req, res) => {
 
         const data = await response.json();
 
-        let answer =
-            data?.generated_text ||
-            data?.[0]?.generated_text ||
-            "Atsiprašau, negavau atsakymo.";
-
-        res.json({ answer });
+        res.json({
+            answer: data?.generated_text || "Nėra atsakymo"
+        });
 
     } catch (err) {
         res.json({ answer: "Klaida: " + err.message });
     }
 });
 
-app.listen(10000, () => {
-    console.log("Bičiulis (free) veikia");
-}); 
+app.listen(10000, () => console.log("Bičiulis veikia"));
